@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+    drone-dive:
+        build: 
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: drone-dive
+        image: 192.168.1.102:5000/drone-dive:0.10.0
+        restart: "no"
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        environment:   
+            - PLUGIN_IMAGES=alpine:latest,alpine/git:latest
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock 
+        # command:
+        #     - get deployments

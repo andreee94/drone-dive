@@ -1,0 +1,126 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+clone:
+  disable: true
+
+steps:
+
+  - name: env
+    image: alpine/git
+    commands: 
+      - pwd
+      - env
+      
+
+  - name: clone 
+    image: alpine/git
+    commands:
+      - mkdir -p $HOME/.ssh
+      - echo "$SSH_KEY" > $HOME/.ssh/id_rsa
+      - chmod 0600 $HOME/.ssh/id_rsa
+      - ssh-keyscan -p 2222 -t rsa 192.168.1.102 >> $HOME/.ssh/known_hosts
+      - git clone $DRONE_GIT_SSH_URL
+    environment:
+      SSH_KEY:
+        from_secret: ssh_key
+
+      
+
+  - name: build-push-registry
+    image: docker:dind
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
+      REGISTRY_USERNAME:
+        from_secret: registry_username
+      REGISTRY_PASSWORD:
+        from_secret: registry_password
+    commands:
+      - sleep 10 # wait for docker service
+      - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
+      - cat ~/docker_password.txt | docker login 192.168.1.102:5000 --username "$REGISTRY_USERNAME" --password-stdin
+      
+      - cd /drone/src/$DRONE_REPO_NAME/
+      
+      - docker build --rm=true -t 192.168.1.102:5000/drone-dive:$(cat .version) -f Dockerfile '.'
+      - docker push 192.168.1.102:5000/drone-dive:$(cat .version)
+
+    volumes:
+      - name: dockersock
+        path: /var/run
+    depends_on:
+      - clone
+
+
+  - name: push-github 
+    image: alpine/git
+    commands:
+      - mkdir -p $HOME/.ssh
+      - echo "$SSH_KEY" > $HOME/.ssh/id_rsa
+      - chmod 0600 $HOME/.ssh/id_rsa
+      - ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts
+      - cd /drone/src/$DRONE_REPO_NAME
+      - git remote add github git@github.com:andreee94/drone-dive.git
+      - git push github
+    environment:
+      SSH_KEY:
+        from_secret: ssh_key_github
+    depends_on:
+      - build-push-registry
+
+
+  - name: annotate-failure
+    image: fdeschenes/drone-grafana-annotation
+    settings:
+      api_key: 
+        from_secret: grafana_key
+      tags:
+        - drone
+        - drone-dive
+        - failure
+      text: "DroneCI - drone-dive - Failure"
+      url: http://192.168.1.102/grafana
+    when:
+      status:
+      - failure
+    depends_on:
+      - push-github
+
+
+
+  - name: annotate-success
+    image: fdeschenes/drone-grafana-annotation
+    settings:
+      api_key: 
+        from_secret: grafana_key
+      tags:
+        - drone
+        - drone-dive
+        - success
+      text: "DroneCI - drone-dive - Success"
+      url: http://192.168.1.102/grafana
+    when:
+      status:
+      - success
+    depends_on:
+      - push-github
+
+
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  command: ["--insecure-registry", "192.168.1.102:5000"]
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+
+volumes:
+- name: dockersock
+  temp: {}
+
+
+image_pull_secrets:
+- registry_secrets_json
