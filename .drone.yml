@@ -63,6 +63,13 @@ steps:
     settings:
       images:
       - 192.168.1.102:5000/drone-dive:0.10.0
+    commands:
+      - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
+      - cat ~/docker_password.txt | docker login 192.168.1.102:5000 --username "$REGISTRY_USERNAME" --password-stdin
+      
+      - cd /drone/src/$DRONE_REPO_NAME/
+
+      - dive 192.168.1.102:5000/drone-dive:0.10.0
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
     volumes:
