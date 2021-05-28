@@ -1,4 +1,4 @@
-# Dive plugin for Drone CI
+# Dive plugin for Drone CI [![Build Status](http://192.168.1.102:3334/api/badges/gitea_admin/drone-dive/status.svg)](http://192.168.1.102:3334/gitea_admin/drone-dive)
 
 This plugin let to run [dive](https://github.com/wagoodman/dive) 
 commands in a [drone ci](https://www.drone.io/) pipeline.
