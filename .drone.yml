@@ -7,6 +7,12 @@ clone:
 
 steps:
 
+  - name: sleep
+    image: alpine
+    commands: 
+      - sleep 30
+
+
   - name: env
     image: alpine/git
     commands: 
@@ -37,7 +43,6 @@ steps:
       REGISTRY_PASSWORD:
         from_secret: registry_password
     commands:
-      - sleep 10 # wait for docker service
       - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
       - cat ~/docker_password.txt | docker login 192.168.1.102:5000 --username "$REGISTRY_USERNAME" --password-stdin
       
@@ -51,6 +56,7 @@ steps:
         path: /var/run
     depends_on:
       - clone
+      - sleep
 
   - name: dive
     image: 192.168.1.102:5000/drone-dive:0.10.0
