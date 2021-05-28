@@ -56,13 +56,15 @@ steps:
     image: 192.168.1.102:5000/drone-dive:0.10.0
     settings:
       images:
-      - alpine:latest
-      - alpine/git:latest
+      - 192.168.1.102:5000/drone-dive:0.10.0
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
     volumes:
       - name: dockersock
         path: /var/run
+    depends_on:
+      - build-push-registry
+
 
   - name: push-github 
     image: alpine/git
