@@ -27,6 +27,11 @@ steps:
     images:
     - alpine:latest
     - alpine/git:latest
+  environment:
+    DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
+  volumes:
+    - name: dockersock
+      path: /var/run
 
 services:
 - name: docker

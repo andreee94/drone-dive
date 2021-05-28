@@ -52,6 +52,17 @@ steps:
     depends_on:
       - clone
 
+  - name: dive
+    image: 192.168.1.102:5000/drone-dive:0.10.0
+    settings:
+      images:
+      - alpine:latest
+      - alpine/git:latest
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
+    volumes:
+      - name: dockersock
+        path: /var/run
 
   - name: push-github 
     image: alpine/git
