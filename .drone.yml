@@ -101,6 +101,8 @@ steps:
       # commit: true
       ssh_key:
         from_secret: ssh_key_github
+    depends_on:
+      - dive
 
 
 services:
