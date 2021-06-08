@@ -7,7 +7,7 @@ name: default
 
 steps:
 
-  - name: push-github
+  - name: push-github-first
     image: appleboy/drone-git-push
     settings:
       branch: master
