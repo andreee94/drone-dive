@@ -7,18 +7,35 @@ name: default
 
 steps:
 
-  - name: push-github-first
-    image: appleboy/drone-git-push
-    settings:
-      branch: master
-      remote: git@github.com:andreee94/drone-dive.git
-      # force: false
-      # commit: true
-      ssh_key:
-        from_secret: ssh_key_github
+  # - name: push-github-first
+  #   image: appleboy/drone-git-push
+  #   settings:
+  #     branch: master
+  #     remote: git@github.com:andreee94/drone-dive.git
+  #     # force: false
+  #     # commit: true
+  #     ssh_key:
+  #       from_secret: ssh_key_github
+  #   commands:
+  #     - sleep 10
+  #     - cat /root/.ssh/id_rsa
+
+
+  - name: push-github 
+    image: alpine/git
     commands:
-      - sleep 10
-      - cat /root/.ssh/id_rsa
+      - mkdir -p $HOME/.ssh
+      - echo "$SSH_KEY" > $HOME/.ssh/id_rsa
+      - chmod 0600 $HOME/.ssh/id_rsa
+      - ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts
+      - cd /drone/src/$DRONE_REPO_NAME
+      - git remote add github git@github.com:andreee94/drone-dive.git
+      - git push github
+    environment:
+      SSH_KEY:
+        from_secret: ssh_key_github
+    depends_on:
+      - build-push-registry
 
 
   - name: sleep
