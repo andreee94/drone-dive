@@ -87,7 +87,8 @@ steps:
       
       - dive andreee94/drone-dive:$(cat .version)
     depends_on:
-      - build-push-registry
+      - build-push-hub-registry
+
 
 services:
 - name: docker
