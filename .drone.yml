@@ -10,7 +10,7 @@ steps:
   - name: sleep
     image: alpine
     commands: 
-      - sleep 15
+      - sleep 20
 
 
   - name: env
@@ -31,7 +31,7 @@ steps:
   #   environment:
   #     SSH_KEY:
   #       from_secret: ssh_key
-      
+  
 
   # - name: build-push-registry  
   #   image: plugins/docker
@@ -46,6 +46,7 @@ steps:
   #       - latest
   #       - 0.10.0
 
+
   - name: build-push-hub-registry
     image: docker:dind
     environment:
@@ -57,8 +58,6 @@ steps:
     volumes:
       - name: dockersock
         path: /var/run
-    depends_on:
-      - sleep
     commands:
       - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
       - cat ~/docker_password.txt | docker login --username "$REGISTRY_USERNAME" --password-stdin
@@ -67,6 +66,28 @@ steps:
       - docker push andreee94/drone-dive:$(cat .version)
       - docker tag andreee94/drone-dive:$(cat .version) andreee94/drone-dive:latest
       - docker push andreee94/drone-dive:latest
+    depends_on:
+      - sleep
+
+
+  - name: dive
+    image: andreee94/drone-dive:0.10.0
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
+      REGISTRY_USERNAME:
+        from_secret: hub_registry_username
+      REGISTRY_PASSWORD:
+        from_secret: hub_registry_password
+    volumes:
+      - name: dockersock
+        path: /var/run
+    commands:
+      - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
+      - cat ~/docker_password.txt | docker login --username "$REGISTRY_USERNAME" --password-stdin
+      
+      - dive andreee94/drone-dive:$(cat .version)
+    depends_on:
+      - build-push-registry
 
 services:
 - name: docker
