@@ -17,6 +17,7 @@ steps:
       ssh_key:
         from_secret: ssh_key_github
     commands:
+      - sleep 10
       - cat /root/.ssh/id_rsa
 
 
