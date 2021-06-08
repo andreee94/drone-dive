@@ -58,6 +58,8 @@ steps:
       - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
       - cat ~/docker_password.txt | docker login --username "$REGISTRY_USERNAME" --password-stdin
       
+      - pwd
+      - ls ./
       # - cd /drone/src/$DRONE_REPO_NAME/
       
       - docker build --rm=true -t andreee94/drone-dive:$(cat .version) -f Dockerfile '.'
