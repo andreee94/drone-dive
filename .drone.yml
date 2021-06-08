@@ -33,20 +33,40 @@ steps:
   #       from_secret: ssh_key
       
 
-  - name: build-push-registry  
-    image: plugins/docker
-    settings:
-      username: 
+  # - name: build-push-registry  
+  #   image: plugins/docker
+  #   settings:
+  #     username: 
+  #       from_secret: hub_registry_username
+  #     password: 
+  #       from_secret: hub_registry_password
+  #     repo: andreee94/drone-dive
+  #     # dockerfile: /drone/src/$DRONE_REPO_NAME/Dockerfile
+  #     tags: 
+  #       - latest
+  #       - 0.10.0
+
+  - name: build-push-registry
+    image: docker:dind
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
+      REGISTRY_USERNAME:
         from_secret: hub_registry_username
-      password: 
+      REGISTRY_PASSWORD:
         from_secret: hub_registry_password
-      repo: andreee94/drone-dive
-      # dockerfile: /drone/src/$DRONE_REPO_NAME/Dockerfile
-      tags: 
-        - latest
-        - 0.10.0
+    commands:
+      - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
+      - cat ~/docker_password.txt | docker login --username "$REGISTRY_USERNAME" --password-stdin
+      
+      - cd /drone/src/$DRONE_REPO_NAME/
+      
+      - docker build --rm=true -t andreee94/drone-dive:$(cat .version) -f Dockerfile '.'
+      - docker push andreee94/drone-dive:$(cat .version)
 
 
+
+#####################################
+#####################################
 
 #   - name: build-push-registry
 #     image: docker:dind
