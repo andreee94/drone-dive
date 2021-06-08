@@ -41,7 +41,7 @@ steps:
       password: 
         from_secret: hub_registry_password
       repo: andreee94/drone-dive
-      dockerfile: /drone/src/$DRONE_REPO_NAME/Dockerfile
+      # dockerfile: /drone/src/$DRONE_REPO_NAME/Dockerfile
       tags: 
         - latest
         - 0.10.0
