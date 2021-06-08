@@ -71,7 +71,7 @@ steps:
 
 
   - name: dive
-    image: andreee94/drone-dive:0.10.0
+    image: andreee94/drone-dive
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
       REGISTRY_USERNAME:
