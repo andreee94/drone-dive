@@ -97,7 +97,7 @@ steps:
     settings:
       branch: master
       remote: git@github.com:andreee94/drone-dive.git
-      force: false
+      # force: false
       # commit: true
       ssh_key:
         from_secret: ssh_key_github
