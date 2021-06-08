@@ -7,10 +7,10 @@ name: default
 
 steps:
 
-  # - name: sleep
-  #   image: alpine
-  #   commands: 
-  #     - sleep 30
+  - name: sleep
+    image: alpine
+    commands: 
+      - sleep 15
 
 
   - name: env
@@ -54,6 +54,11 @@ steps:
         from_secret: hub_registry_username
       REGISTRY_PASSWORD:
         from_secret: hub_registry_password
+    volumes:
+      - name: dockersock
+        path: /var/run
+    depends_on:
+      - sleep
     commands:
       - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
       - cat ~/docker_password.txt | docker login --username "$REGISTRY_USERNAME" --password-stdin
@@ -65,6 +70,19 @@ steps:
       - docker build --rm=true -t andreee94/drone-dive:$(cat .version) -f Dockerfile '.'
       - docker push andreee94/drone-dive:$(cat .version)
 
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  # command: ["--insecure-registry", "192.168.1.102:5000"]
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+
+volumes:
+- name: dockersock
+  temp: {}
 
 
 #####################################
@@ -185,5 +203,5 @@ steps:
 #   temp: {}
 
 
-image_pull_secrets:
-- registry_secrets_json
+# image_pull_secrets:
+# - registry_secrets_json
