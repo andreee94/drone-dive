@@ -46,7 +46,7 @@ steps:
   #       - latest
   #       - 0.10.0
 
-  - name: build-push-registry
+  - name: build-push-hub-registry
     image: docker:dind
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock #unix:///drone/docker.sock
@@ -63,18 +63,15 @@ steps:
       - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
       - cat ~/docker_password.txt | docker login --username "$REGISTRY_USERNAME" --password-stdin
       
-      - pwd
-      - ls ./
-      # - cd /drone/src/$DRONE_REPO_NAME/
-      
       - docker build --rm=true -t andreee94/drone-dive:$(cat .version) -f Dockerfile '.'
       - docker push andreee94/drone-dive:$(cat .version)
+      - docker tag andreee94/drone-dive:$(cat .version) andreee94/drone-dive:latest
+      - docker push andreee94/drone-dive:latest
 
 services:
 - name: docker
   image: docker:dind
   privileged: true
-  # command: ["--insecure-registry", "192.168.1.102:5000"]
   volumes:
   - name: dockersock
     path: /var/run
