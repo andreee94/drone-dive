@@ -84,7 +84,7 @@ steps:
     commands:
       - echo "$REGISTRY_PASSWORD" > ~/docker_password.txt
       - cat ~/docker_password.txt | docker login --username "$REGISTRY_USERNAME" --password-stdin
-      
+      - export CI=true
       - dive andreee94/drone-dive:$(cat .version)
     depends_on:
       - build-push-hub-registry
