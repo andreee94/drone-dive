@@ -92,6 +92,17 @@ steps:
       - build-push-hub-registry
 
 
+  - name: push-github
+    image: appleboy/drone-git-push
+    settings:
+      branch: master
+      remote: git@github.com:andreee94/drone-dive.git
+      force: false
+      # commit: true
+      ssh_key:
+        from_secret: ssh_key_github
+
+
 services:
 - name: docker
   image: docker:dind
