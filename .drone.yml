@@ -28,7 +28,7 @@ steps:
       - echo "$SSH_KEY" > $HOME/.ssh/id_rsa
       - chmod 0600 $HOME/.ssh/id_rsa
       - ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts
-      - cd /drone/src/$DRONE_REPO_NAME
+      # - cd /drone/src/$DRONE_REPO_NAME
       - git remote add github git@github.com:andreee94/drone-dive.git
       - git push github
     environment:
