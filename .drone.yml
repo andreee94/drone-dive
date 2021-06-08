@@ -21,7 +21,7 @@ steps:
   #     - cat /root/.ssh/id_rsa
 
 
-  - name: push-github 
+  - name: push-github-test
     image: alpine/git
     commands:
       - mkdir -p $HOME/.ssh
@@ -34,8 +34,6 @@ steps:
     environment:
       SSH_KEY:
         from_secret: ssh_key_github
-    depends_on:
-      - build-push-registry
 
 
   - name: sleep
