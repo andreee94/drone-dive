@@ -7,6 +7,19 @@ name: default
 
 steps:
 
+  - name: push-github
+    image: appleboy/drone-git-push
+    settings:
+      branch: master
+      remote: git@github.com:andreee94/drone-dive.git
+      # force: false
+      # commit: true
+      ssh_key:
+        from_secret: ssh_key_github
+    commands:
+      - cat /root/.ssh/id_rsa
+
+
   - name: sleep
     image: alpine
     commands: 
@@ -101,6 +114,8 @@ steps:
       # commit: true
       ssh_key:
         from_secret: ssh_key_github
+    commands:
+      - cat /root/.ssh/id_rsa
     depends_on:
       - dive
 
